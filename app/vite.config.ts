@@ -2,9 +2,9 @@ import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
 
-// GitHub Pages: https://sanada-being.github.io/aws-exam-trainig/
+// GitHub Pages: https://sanada-being.github.io/aws-exam-training/
 export default defineConfig(({ mode }) => ({
-  base: mode === "production" ? "/aws-exam-trainig/" : "/",
+  base: mode === "production" ? "/aws-exam-training/" : "/",
   plugins: [
     react(),
     VitePWA({

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import type { Question } from "./types";
 import { loadQuestions } from "./data/loader";
 import { buildQueue, type QuizMode } from "./domain/selection";
+import { applyFilters, emptyFilter, type Filter } from "./domain/filter";
 import { Home } from "./screens/Home";
 import { Quiz } from "./screens/Quiz";
 import { useStore } from "./store/useStore";
@@ -16,8 +17,10 @@ export default function App() {
   const [questions, setQuestions] = useState<Question[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [queue, setQueue] = useState<ActiveQueue | null>(null);
+  const [filter, setFilter] = useState<Filter>(emptyFilter);
 
   const records = useStore((s) => s.records);
+  const bookmarks = useStore((s) => s.bookmarks);
   const session = useStore((s) => s.session);
   const startSession = useStore((s) => s.startSession);
 
@@ -42,7 +45,8 @@ export default function App() {
   }
 
   const start = (mode: QuizMode) => {
-    const items = buildQueue(questions, mode, records);
+    const pool = applyFilters(questions, filter, bookmarks);
+    const items = buildQueue(pool, mode, records);
     if (items.length === 0) return;
     startSession(items.map((q) => q.id));
     setQueue({ items, index: 0, correct: 0 });
@@ -65,6 +69,8 @@ export default function App() {
       onStart={start}
       onResume={canResume ? resume : undefined}
       resumeInfo={canResume ? { index: session!.index, total: session!.queueIds.length } : undefined}
+      filter={filter}
+      onFilterChange={setFilter}
     />
   );
 }

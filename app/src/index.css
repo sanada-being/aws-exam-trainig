@@ -85,6 +85,20 @@ a { color: var(--accent); }
 .statnum { font-size: 1.3rem; font-weight: 800; font-variant-numeric: tabular-nums; }
 .statlabel { font-size: 0.78rem; color: var(--muted); }
 .home-progress { margin: 0 0 8px; }
+
+/* 絞り込み */
+.filters { margin: 8px 0 4px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+  padding: 7px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+.chip.on { background: #0b3a4f; border-color: var(--accent); color: var(--text); }
+.filterinfo { display: flex; align-items: center; gap: 10px; font-size: 0.9rem; color: var(--muted); margin: 8px 0; }
 .actions { display: flex; flex-direction: column; gap: 12px; margin-top: 24px; }
 .badge {
   display: inline-grid;

@@ -1,25 +1,47 @@
-import type { Question } from "../types";
+import type { Question, Confidence } from "../types";
 import type { QuizMode } from "../domain/selection";
 import { modeCount } from "../domain/selection";
 import { computeStats } from "../domain/stats";
+import { applyFilters, isFilterActive, type Filter } from "../domain/filter";
 import { useStore } from "../store/useStore";
+
+const CONFS: { key: Confidence; label: string }[] = [
+  { key: "high", label: "確信度:高" },
+  { key: "medium", label: "中" },
+  { key: "low", label: "低" },
+];
 
 export function Home({
   questions,
   onStart,
   onResume,
   resumeInfo,
+  filter,
+  onFilterChange,
 }: {
   questions: Question[];
   onStart: (mode: QuizMode) => void;
   onResume?: () => void;
   resumeInfo?: { index: number; total: number };
+  filter: Filter;
+  onFilterChange: (f: Filter) => void;
 }) {
   const records = useStore((s) => s.records);
   const bookmarks = useStore((s) => s.bookmarks);
   const stats = computeStats(questions, records, bookmarks);
-  const wrong = modeCount(questions, "wrong", records);
-  const unanswered = modeCount(questions, "unanswered", records);
+
+  const pool = applyFilters(questions, filter, bookmarks);
+  const wrong = modeCount(pool, "wrong", records);
+  const unanswered = modeCount(pool, "unanswered", records);
+  const poolEmpty = pool.length === 0;
+
+  const toggleConf = (c: Confidence) =>
+    onFilterChange({
+      ...filter,
+      confidences: filter.confidences.includes(c)
+        ? filter.confidences.filter((x) => x !== c)
+        : [...filter.confidences, c],
+    });
 
   return (
     <div className="home">
@@ -51,16 +73,70 @@ export function Home({
         <div style={{ width: `${stats.total ? (stats.answered / stats.total) * 100 : 0}%` }} />
       </div>
 
+      <section className="filters" aria-label="絞り込み">
+        <div className="chips">
+          {CONFS.map((c) => (
+            <button
+              key={c.key}
+              type="button"
+              className={`chip${filter.confidences.includes(c.key) ? " on" : ""}`}
+              aria-pressed={filter.confidences.includes(c.key)}
+              onClick={() => toggleConf(c.key)}
+            >
+              {c.label}
+            </button>
+          ))}
+          <button
+            type="button"
+            className={`chip${filter.bookmarkedOnly ? " on" : ""}`}
+            aria-pressed={filter.bookmarkedOnly}
+            onClick={() => onFilterChange({ ...filter, bookmarkedOnly: !filter.bookmarkedOnly })}
+          >
+            ★のみ
+          </button>
+          <button
+            type="button"
+            className={`chip${filter.needsReviewOnly ? " on" : ""}`}
+            aria-pressed={filter.needsReviewOnly}
+            onClick={() => onFilterChange({ ...filter, needsReviewOnly: !filter.needsReviewOnly })}
+          >
+            要確認のみ
+          </button>
+        </div>
+        <p className="filterinfo">
+          対象 <strong data-testid="pool">{pool.length}</strong> 問
+          {isFilterActive(filter) && (
+            <button
+              type="button"
+              className="btn ghost small"
+              onClick={() => onFilterChange({ confidences: [], needsReviewOnly: false, bookmarkedOnly: false })}
+            >
+              クリア
+            </button>
+          )}
+        </p>
+      </section>
+
       <div className="actions">
         {onResume && resumeInfo && (
           <button type="button" className="btn primary big" onClick={onResume}>
             続きから（{resumeInfo.index + 1} / {resumeInfo.total}）
           </button>
         )}
-        <button type="button" className="btn big" onClick={() => onStart("sequential")}>
+        <button
+          type="button"
+          className="btn big"
+          onClick={() => onStart("sequential")}
+          disabled={poolEmpty}
+        >
           順番に学習
         </button>
-        <button type="button" className="btn big" onClick={() => onStart("random")}>
+        <button
+          type="button"
+          className="btn big"
+          onClick={() => onStart("random")}
+          disabled={poolEmpty}
+        >
           ランダム出題
         </button>
         <button

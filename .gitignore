@@ -1,0 +1,14 @@
+# dependencies
+collector/node_modules/
+node_modules/
+
+# scraper artifacts
+collector/cache/
+collector/logs/
+collector/.profile/
+
+# enumeration intermediates (URLは data/disc-urls.json に集約済み)
+data/url-batches/
+
+# build
+app/dist/

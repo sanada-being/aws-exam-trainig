@@ -1,6 +1,7 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
-import { Summary } from "./App";
+import userEvent from "@testing-library/user-event";
+import { Home } from "./screens/Home";
 import type { Question } from "./types";
 
 const sample: Question[] = [
@@ -18,9 +19,18 @@ const sample: Question[] = [
   },
 ];
 
-describe("Summary", () => {
-  it("総問数を表示する", () => {
-    render(<Summary questions={sample} />);
-    expect(screen.getByTestId("total")).toHaveTextContent("全 1 問");
+describe("Home", () => {
+  it("総問数と開始ボタンを表示する", () => {
+    render(<Home questions={sample} onStart={() => {}} />);
+    expect(screen.getByText(/全/)).toHaveTextContent("全 1 問");
+    expect(screen.getByRole("button", { name: "順番に学習" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "ランダム出題" })).toBeInTheDocument();
+  });
+
+  it("開始ボタンで onStart が呼ばれる", async () => {
+    const onStart = vi.fn();
+    render(<Home questions={sample} onStart={onStart} />);
+    await userEvent.click(screen.getByRole("button", { name: "順番に学習" }));
+    expect(onStart).toHaveBeenCalledWith("sequential");
   });
 });

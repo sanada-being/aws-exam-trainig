@@ -14,5 +14,10 @@ data/url-batches/
 data/ja-input/
 data/ja-output/
 
+# explanation intermediates (解説は data/questions.json に集約)
+data/expl-input/
+data/expl-output/
+data/expl/
+
 # build
 app/dist/

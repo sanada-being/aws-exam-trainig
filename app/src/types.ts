@@ -30,4 +30,5 @@ export interface Question {
   communityVote: Vote[];
   answerConfidence: Confidence;
   needsReview: boolean;
+  explanation?: string | null; // 日本語解説
 }

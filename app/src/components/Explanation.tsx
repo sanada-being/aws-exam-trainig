@@ -12,6 +12,14 @@ export function Explanation({ question }: { question: Question }) {
   const total = question.communityVote.reduce((s, v) => s + v.count, 0);
   return (
     <div className="explanation">
+      {question.explanation && (
+        <div className="expl-text" data-testid="explanation">
+          <h3>解説</h3>
+          {question.explanation.split("\n").map((line, i) => (
+            <p key={i}>{line}</p>
+          ))}
+        </div>
+      )}
       <h3>コミュニティ投票分布</h3>
       {question.communityVote.length === 0 ? (
         <p className="muted">投票データなし</p>

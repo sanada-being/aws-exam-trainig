@@ -103,6 +103,14 @@ describe("Home", () => {
     expect(onOpenSettings).toHaveBeenCalled();
   });
 
+  it("『未正解のみ』チップで excludeMastered が切り替わる", async () => {
+    const onFilterChange = vi.fn();
+    renderHome({ onFilterChange });
+    await userEvent.click(screen.getByRole("button", { name: "未正解のみ" }));
+    const arg = onFilterChange.mock.calls[0][0] as Filter;
+    expect(arg.excludeMastered).toBe(true);
+  });
+
   it("出題数チップで onCountChange が呼ばれる", async () => {
     const onCountChange = vi.fn();
     renderHome({ onCountChange });

@@ -2,7 +2,7 @@ import type { Question, Confidence } from "../types";
 import type { QuizMode } from "../domain/selection";
 import { modeCount } from "../domain/selection";
 import { computeStats } from "../domain/stats";
-import { applyFilters, isFilterActive, type Filter } from "../domain/filter";
+import { applyFilters, isFilterActive, emptyFilter, type Filter } from "../domain/filter";
 import { useStore } from "../store/useStore";
 import { SyncIndicator } from "../components/SyncIndicator";
 
@@ -37,7 +37,7 @@ export function Home({
   const bookmarks = useStore((s) => s.bookmarks);
   const stats = computeStats(questions, records, bookmarks);
 
-  const pool = applyFilters(questions, filter, bookmarks);
+  const pool = applyFilters(questions, filter, bookmarks, records);
   const wrong = modeCount(pool, "wrong", records);
   const unanswered = modeCount(pool, "unanswered", records);
   const poolEmpty = pool.length === 0;
@@ -124,6 +124,14 @@ export function Home({
           >
             要確認のみ
           </button>
+          <button
+            type="button"
+            className={`chip${filter.excludeMastered ? " on" : ""}`}
+            aria-pressed={filter.excludeMastered}
+            onClick={() => onFilterChange({ ...filter, excludeMastered: !filter.excludeMastered })}
+          >
+            未正解のみ
+          </button>
         </div>
         <div className="chips countchips">
           {[10, 20, 30, 40, 50, null].map((c) => (
@@ -145,7 +153,7 @@ export function Home({
             <button
               type="button"
               className="btn ghost small"
-              onClick={() => onFilterChange({ confidences: [], needsReviewOnly: false, bookmarkedOnly: false })}
+              onClick={() => onFilterChange(emptyFilter)}
             >
               クリア
             </button>

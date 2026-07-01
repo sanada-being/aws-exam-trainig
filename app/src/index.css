@@ -68,6 +68,11 @@ a { color: var(--accent); }
 /* ホーム */
 .home h1 { margin-bottom: 4px; }
 .topbar { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.topbar-right { display: flex; align-items: center; gap: 8px; }
+.syncind { font-size: 0.78rem; color: var(--muted); white-space: nowrap; }
+.syncind.ok { color: var(--correct); }
+.syncind.error { color: var(--wrong); }
+.syncind.syncing { color: var(--accent); }
 
 /* 設定・同期 */
 .settings h2 { font-size: 1.1rem; margin: 12px 0 8px; }

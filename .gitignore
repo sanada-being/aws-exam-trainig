@@ -19,5 +19,12 @@ data/expl-input/
 data/expl-output/
 data/expl/
 
+# 他試験(例: SAP)の中間物（成果は data/<exam>/questions.json に集約）
+data/*/url-batches/
+data/*/ja-input/
+data/*/ja-output/
+data/*/expl-input/
+data/*/expl-output/
+
 # build
 app/dist/

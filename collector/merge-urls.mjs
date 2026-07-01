@@ -1,13 +1,27 @@
-// url-batches/*.json をマージして data/disc-urls.json を生成し、網羅率と欠番を報告する。
-// 欠番リストは logs/missing-qnums.json に保存(再列挙の args に使える)。
+// url-batches/*.json をマージして disc-urls.json を生成し、網羅率と欠番を報告する。
+// EXAM=sap-c02 等で対象試験を切替（既定 saa-c03）。
 import { readdir, readFile, writeFile, mkdir } from "node:fs/promises";
 import path from "node:path";
 
-const TOTAL = 1019;
-const BATCH_DIR = path.resolve("..", "data", "url-batches");
-const DATA = path.resolve("..", "data");
+const EXAM = process.env.EXAM || "saa-c03";
+const EXAMS = {
+  "saa-c03": { total: 1019, re: /saa-c03/i, dir: path.resolve("..", "data"), missing: "missing-qnums.json" },
+  "sap-c02": {
+    total: 529,
+    re: /sap-c02/i,
+    dir: path.resolve("..", "data", "sap-c02"),
+    missing: "missing-qnums-sap.json",
+  },
+};
+const CFG = EXAMS[EXAM];
+if (!CFG) throw new Error(`unknown EXAM: ${EXAM}`);
+
+const TOTAL = CFG.total;
+const BATCH_DIR = path.join(CFG.dir, "url-batches");
+const DATA = CFG.dir;
 const LOGS = path.resolve("logs");
 await mkdir(LOGS, { recursive: true });
+await mkdir(DATA, { recursive: true });
 
 const files = (await readdir(BATCH_DIR)).filter((f) => f.endsWith(".json"));
 const map = new Map(); // q -> url
@@ -17,7 +31,7 @@ for (const f of files) {
     const obj = JSON.parse(await readFile(path.join(BATCH_DIR, f), "utf8"));
     for (const p of obj.pairs || []) {
       if (!p || !Number.isInteger(p.q) || !p.url) continue;
-      if (!/saa-c03/i.test(p.url)) continue;
+      if (!CFG.re.test(p.url)) continue;
       if (!/\/discussions\/amazon\/view\/\d+-/.test(p.url)) continue;
       if (p.q < 1 || p.q > TOTAL) continue;
       if (!map.has(p.q)) map.set(p.q, p.url);
@@ -34,9 +48,7 @@ await writeFile(path.join(DATA, "disc-urls.json"), JSON.stringify(urls, null, 2)
 
 const missing = [];
 for (let n = 1; n <= TOTAL; n++) if (!map.has(n)) missing.push(n);
-await writeFile(path.join(LOGS, "missing-qnums.json"), JSON.stringify(missing), "utf8");
+await writeFile(path.join(LOGS, CFG.missing), JSON.stringify(missing), "utf8");
 
-console.log(`バッチファイル: ${files.length} (壊れ ${bad})`);
-console.log(`列挙済み: ${urls.length}/${TOTAL}  欠番: ${missing.length}`);
-if (missing.length) console.log(`欠番例(先頭30): ${missing.slice(0, 30).join(", ")}`);
-console.log(`-> data/disc-urls.json / logs/missing-qnums.json`);
+console.log(`[${EXAM}] バッチ ${files.length}(壊れ ${bad}) / 列挙 ${urls.length}/${TOTAL} / 欠番 ${missing.length}`);
+if (missing.length) console.log(`欠番(先頭30): ${missing.slice(0, 30).join(", ")}`);

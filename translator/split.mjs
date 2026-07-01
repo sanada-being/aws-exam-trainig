@@ -10,7 +10,9 @@ import { readFile, writeFile, mkdir, readdir, unlink } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import path from "node:path";
 
-const DATA = path.resolve("..", "data");
+const EXAM = process.env.EXAM || "saa-c03";
+const DATA =
+  EXAM === "saa-c03" ? path.resolve("..", "data") : path.resolve("..", "data", EXAM);
 const IN = path.join(DATA, "ja-input");
 const QJSON = path.join(DATA, "questions.json");
 const QEN = path.join(DATA, "questions.en.json");

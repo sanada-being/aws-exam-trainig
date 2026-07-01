@@ -24,6 +24,7 @@ const slim = all
     communityVote: q.communityVote,
     answerConfidence: q.answerConfidence,
     needsReview: q.needsReview,
+    explanation: q.explanation?.ja ?? null,
   }))
   .sort((a, b) => a.questionNumber - b.questionNumber);
 

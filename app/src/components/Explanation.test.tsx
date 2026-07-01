@@ -34,4 +34,16 @@ describe("Explanation", () => {
     render(<Explanation question={q} />);
     expect(screen.getByText(/総投票 100/)).toBeInTheDocument();
   });
+
+  it("解説があれば表示する", () => {
+    render(<Explanation question={{ ...q, explanation: "正解は A。\n- B: だめ" }} />);
+    const el = screen.getByTestId("explanation");
+    expect(el).toHaveTextContent("正解は A。");
+    expect(el).toHaveTextContent("- B: だめ");
+  });
+
+  it("解説が無ければ解説見出しは出ない", () => {
+    render(<Explanation question={{ ...q, explanation: null }} />);
+    expect(screen.queryByTestId("explanation")).not.toBeInTheDocument();
+  });
 });

@@ -4,6 +4,7 @@ import { modeCount } from "../domain/selection";
 import { computeStats } from "../domain/stats";
 import { applyFilters, isFilterActive, type Filter } from "../domain/filter";
 import { useStore } from "../store/useStore";
+import { SyncIndicator } from "../components/SyncIndicator";
 
 const CONFS: { key: Confidence; label: string }[] = [
   { key: "high", label: "確信度:高" },
@@ -53,16 +54,19 @@ export function Home({
     <div className="home">
       <div className="topbar">
         <h1>AWS SAA 問題集</h1>
-        {onOpenSettings && (
-          <button
-            type="button"
-            className="btn ghost small"
-            onClick={onOpenSettings}
-            aria-label="設定・同期"
-          >
-            ⚙ 同期
-          </button>
-        )}
+        <div className="topbar-right">
+          <SyncIndicator />
+          {onOpenSettings && (
+            <button
+              type="button"
+              className="btn ghost small"
+              onClick={onOpenSettings}
+              aria-label="設定・同期"
+            >
+              ⚙ 同期
+            </button>
+          )}
+        </div>
       </div>
 
       <section className="dashboard" aria-label="学習状況">

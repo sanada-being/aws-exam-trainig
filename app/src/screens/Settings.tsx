@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useStore } from "../store/useStore";
 import { useSync } from "../store/useSync";
 import { createGist, fetchGist, updateGist, buildPayload } from "../data/gist";
+import { formatSyncTime, syncStatusLabel } from "../domain/syncFormat";
 
 export function Settings({ onBack }: { onBack: () => void }) {
   const sync = useSync();
@@ -137,8 +138,9 @@ export function Settings({ onBack }: { onBack: () => void }) {
       </div>
 
       <p className="muted small" data-testid="syncstatus">
-        状態: {sync.enabled ? "有効" : "無効"} / {sync.status}
-        {sync.lastError ? ` (${sync.lastError})` : ""}
+        状態: {syncStatusLabel(sync.status, sync.enabled)}
+        {sync.lastSyncedAt ? `・最終同期 ${formatSyncTime(sync.lastSyncedAt)}` : ""}
+        {sync.lastError ? `（${sync.lastError}）` : ""}
       </p>
       {sync.enabled && (
         <button type="button" className="btn ghost small" onClick={() => sync.clear()}>

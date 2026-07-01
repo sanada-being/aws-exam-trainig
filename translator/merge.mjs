@@ -3,7 +3,9 @@
 import { readFile, writeFile, readdir } from "node:fs/promises";
 import path from "node:path";
 
-const DATA = path.resolve("..", "data");
+const EXAM = process.env.EXAM || "saa-c03";
+const DATA =
+  EXAM === "saa-c03" ? path.resolve("..", "data") : path.resolve("..", "data", EXAM);
 const OUT = path.join(DATA, "ja-output");
 const QJSON = path.join(DATA, "questions.json");
 

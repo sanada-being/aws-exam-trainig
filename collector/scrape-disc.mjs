@@ -13,7 +13,28 @@ import { mkdir, writeFile, readFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import path from "node:path";
 
-const EXAM_CODE = "SAA-C03";
+// exam切替（EXAM=sap-c02 等）。既定は saa-c03 で従来通り。
+const EXAM = process.env.EXAM || "saa-c03";
+const EXAMS = {
+  "saa-c03": {
+    code: "SAA-C03",
+    idPrefix: "saa-c03",
+    dir: path.resolve("..", "data"),
+    cache: path.resolve("cache", "disc"),
+    failLog: "disc-failures.json",
+  },
+  "sap-c02": {
+    code: "SAP-C02",
+    idPrefix: "sap-c02",
+    dir: path.resolve("..", "data", "sap-c02"),
+    cache: path.resolve("cache", "disc-sap"),
+    failLog: "disc-failures-sap.json",
+  },
+};
+const CFG = EXAMS[EXAM];
+if (!CFG) throw new Error(`unknown EXAM: ${EXAM}`);
+
+const EXAM_CODE = CFG.code;
 const UA =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36";
 const THROTTLE_MS = 2500;
@@ -21,9 +42,9 @@ const REFRESH = !!process.env.REFRESH;
 const MAX_COMMENTS = 12; // 1問あたり保存する上位コメント数
 const COLLECTED_AT = "2026-06-30";
 
-const CACHE = path.resolve("cache", "disc");
+const CACHE = CFG.cache;
 const LOGS = path.resolve("logs");
-const DATA = path.resolve("..", "data");
+const DATA = CFG.dir;
 await mkdir(CACHE, { recursive: true });
 await mkdir(LOGS, { recursive: true });
 await mkdir(DATA, { recursive: true });
@@ -136,7 +157,7 @@ function normalize(d, url) {
     .slice(0, MAX_COMMENTS);
 
   return {
-    id: `saa-c03-${String(d.qNum).padStart(4, "0")}`,
+    id: `${CFG.idPrefix}-${String(d.qNum).padStart(4, "0")}`,
     examCode: EXAM_CODE,
     questionNumber: d.qNum,
     topic: d.topic,
@@ -212,5 +233,5 @@ for (const url of urls) {
 }
 
 await context.close();
-await writeFile(path.join(LOGS, "disc-failures.json"), JSON.stringify(failures, null, 2), "utf8");
-console.log(`\n完了: ${records.size}問 -> data/questions.en.json / 失敗 ${failures.length}件`);
+await writeFile(path.join(LOGS, CFG.failLog), JSON.stringify(failures, null, 2), "utf8");
+console.log(`\n[${EXAM}] 完了: ${records.size}問 -> ${outDataPath} / 失敗 ${failures.length}件`);

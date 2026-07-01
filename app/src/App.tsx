@@ -53,7 +53,7 @@ export default function App() {
   }
 
   const start = (mode: QuizMode) => {
-    const pool = applyFilters(questions, filter, bookmarks);
+    const pool = applyFilters(questions, filter, bookmarks, records);
     const items = buildQueue(pool, mode, records, Math.random, count ?? undefined);
     if (items.length === 0) return;
     startSession(items.map((q) => q.id));

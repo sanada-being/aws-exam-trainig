@@ -44,4 +44,14 @@ describe("applyFilters", () => {
     const out = applyFilters(qs, { ...emptyFilter, bookmarkedOnly: true }, { q3: true });
     expect(out.map((x) => x.questionNumber)).toEqual([3]);
   });
+
+  it("未正解のみ＝未回答＋誤答（正解済みを除外）", () => {
+    const records = {
+      q1: { attempts: 1, correctCount: 1, lastCorrect: true, lastAt: 1 }, // 正解済み→除外
+      q2: { attempts: 1, correctCount: 0, lastCorrect: false, lastAt: 2 }, // 誤答→残る
+      // q3 未回答→残る
+    };
+    const out = applyFilters(qs, { ...emptyFilter, excludeMastered: true }, {}, records);
+    expect(out.map((x) => x.questionNumber).sort()).toEqual([2, 3]);
+  });
 });
